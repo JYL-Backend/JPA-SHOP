@@ -5,6 +5,7 @@ import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.SimpleOrderQueryDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -33,37 +34,24 @@ public class OrderSimpleApiConroller {
     }
 
     @GetMapping("/api/v2/simple-orders")
-    public List<SimpleOrderDto> ordersV2() {
+    public List<SimpleOrderQueryDto> ordersV2() {
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
-        List<SimpleOrderDto> collect = orders.stream()
-                .map(o -> new SimpleOrderDto(o))
+        List<SimpleOrderQueryDto> collect = orders.stream()
+                .map(o -> new SimpleOrderQueryDto(o))
                 .collect(Collectors.toList());
         return collect;
     }
 
     @GetMapping("/api/v3/simple-orders")
-    public List<SimpleOrderDto> ordersV3() {
+    public List<SimpleOrderQueryDto> ordersV3() {
         List<Order> orders = orderRepository.findAllWithMemberDelivery();
-        List<SimpleOrderDto> collect = orders.stream()
-                .map(o -> new SimpleOrderDto(o))
+        List<SimpleOrderQueryDto> collect = orders.stream()
+                .map(o -> new SimpleOrderQueryDto(o))
                 .collect(Collectors.toList());
         return collect;
     }
-
-    @Data
-    static class SimpleOrderDto {
-        public SimpleOrderDto(Order order) {
-            orderId = order.getId();
-            name = order.getMember().getName();
-            orderDate = order.getOrderDate();
-            orderStatus = order.getStatus();
-            address = order.getDelivery().getAddress();
-        }
-
-        private Long orderId;
-        private String name;
-        private LocalDateTime orderDate;
-        private OrderStatus orderStatus;
-        private Address address;
+    @GetMapping("/api/v4/simple-orders")
+    public List<SimpleOrderQueryDto> ordersV4() {
+        return orderRepository.findOrderDtos();
     }
 }
